@@ -7,4 +7,14 @@
     <string name="search_hint">e.g. oats, Heinz, greek yoghurt</string>
     <string name="search_button_description">Search</string>
     <string name="search_error_empty">Please enter a food or brand to search</string>
+    <string name="search_start_message">Your search results will appear here.</string>
+    <string name="search_no_results">No results found for \"%1$s\". Try a different food or brand.</string>
+    <string name="search_error_network">Couldn\'t connect. Please check your internet connection and try again.</string>
+    <string name="search_error_server">Open Food Facts is having problems right now. Please try again in a moment.</string>
+    <string name="search_loading_description">Searching</string>
+
+    <!-- Search result card -->
+    <string name="item_calories">%1$.0f kcal per 100g</string>
+    <string name="item_macros">Protein %1$.1fg · Carbs %2$.1fg · Fat %3$.1fg</string>
+    <string name="item_no_nutrition">No nutrition data available</string>
 </resources>

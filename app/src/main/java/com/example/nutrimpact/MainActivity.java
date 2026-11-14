@@ -2,7 +2,7 @@
  * Module: EEE521 - Final Year Project
  * Project: Nutrimpact
  * File: MainActivity.java
- * Description: Launcher activity for Nutrimpact. Shows the food search bar and runs an Open Food Facts search when the user taps the magnifying glass or presses search on the keyboard.
+ * Description: Launcher activity for Nutrimpact. Lets the user search Open Food Facts by food type or brand, shows a spinner while loading, then lists the results or a friendly message.
  */
 
 package com.example.nutrimpact;
@@ -12,11 +12,15 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -28,8 +32,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * Entry point of the app. Lets the user search for a food by type or brand name.
- * Results are logged to Logcat until the results list is built.
+ * Entry point of the app. Hosts the food search screen.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -42,8 +45,24 @@ public class MainActivity extends AppCompatActivity {
     /** Text field the user types their search into. */
     private TextInputEditText editSearch;
 
+    /** Spinner shown while a search is running. */
+    private ProgressBar progressSearch;
+
+    /** List of search results. */
+    private RecyclerView recyclerResults;
+
+    /** Message shown instead of the list: start hint, no results or an error. */
+    private TextView textMessage;
+
+    /** Adapter that turns FoodProduct objects into result cards. */
+    private FoodProductAdapter adapter;
+
+    /** The search currently running, kept so it can be cancelled. */
+    private Call<FoodSearchResponse> currentCall;
+
     /**
-     * Called when the activity is first created. Sets the layout and wires up the search bar.
+     * Called when the activity is first created. Sets the layout and wires up
+     * the search bar and results list.
      *
      * @param savedInstanceState previously saved state, or null on first launch.
      */
@@ -54,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
 
         layoutSearch = findViewById(R.id.layoutSearch);
         editSearch = findViewById(R.id.editSearch);
+        progressSearch = findViewById(R.id.progressSearch);
+        recyclerResults = findViewById(R.id.recyclerResults);
+        textMessage = findViewById(R.id.textMessage);
+
+        adapter = new FoodProductAdapter();
+        recyclerResults.setAdapter(adapter);
 
         // Tapping the magnifying glass runs the search.
         layoutSearch.setEndIconOnClickListener(view -> performSearch());
@@ -107,6 +132,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Cancels any running search so a late response can't update a closed screen.
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (currentCall != null) {
+            currentCall.cancel();
+        }
+    }
+
+    /**
      * Reads the search bar, checks it isn't empty, then starts the search.
      * Shows an error under the search bar if nothing was entered.
      */
@@ -136,13 +172,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Searches Open Food Facts in the background and logs each product's
-     * name, calories and protein.
+     * Searches Open Food Facts in the background and shows the results,
+     * a "no results" message or an error message.
      *
      * @param query the search terms.
      */
     private void searchFood(String query) {
-        OpenFoodFactsApi.Client.getApi().searchProducts(query).enqueue(new Callback<FoodSearchResponse>() {
+        // Cancel any earlier search so its results can't overwrite this one.
+        if (currentCall != null) {
+            currentCall.cancel();
+        }
+
+        showLoading();
+        currentCall = OpenFoodFactsApi.Client.getApi().searchProducts(query);
+        currentCall.enqueue(new Callback<FoodSearchResponse>() {
 
             /**
              * Handles a response from the server, successful or not.
@@ -155,31 +198,70 @@ public class MainActivity extends AppCompatActivity {
                                    @NonNull Response<FoodSearchResponse> response) {
                 if (!response.isSuccessful() || response.body() == null) {
                     Log.e(TAG, "Search failed with HTTP code " + response.code());
+                    showMessage(getString(R.string.search_error_server));
                     return;
                 }
 
                 List<FoodProduct> products = response.body().getProducts();
                 Log.d(TAG, "Found " + products.size() + " products for \"" + query + "\"");
 
-                for (FoodProduct product : products) {
-                    Nutriments nutriments = product.getNutriments();
-                    Log.d(TAG, product.getProductName()
-                            + " | " + product.getBrands()
-                            + " | " + nutriments.getCaloriesPer100g() + " kcal"
-                            + " | " + nutriments.getProteinPer100g() + " g protein");
+                if (products.isEmpty()) {
+                    showMessage(getString(R.string.search_no_results, query));
+                } else {
+                    showResults(products);
                 }
             }
 
             /**
              * Handles a network failure, such as no connection or a timeout.
+             * Does nothing if the search was cancelled on purpose.
              *
              * @param call the call that failed.
              * @param t    the error that occurred.
              */
             @Override
             public void onFailure(@NonNull Call<FoodSearchResponse> call, @NonNull Throwable t) {
+                if (call.isCanceled()) {
+                    return;
+                }
                 Log.e(TAG, "Network error: " + t.getMessage(), t);
+                showMessage(getString(R.string.search_error_network));
             }
         });
+    }
+
+    /**
+     * Shows the spinner and hides the list and message.
+     */
+    private void showLoading() {
+        progressSearch.setVisibility(View.VISIBLE);
+        recyclerResults.setVisibility(View.GONE);
+        textMessage.setVisibility(View.GONE);
+    }
+
+    /**
+     * Shows the results list and hides the spinner and message.
+     *
+     * @param products the products to show.
+     */
+    private void showResults(List<FoodProduct> products) {
+        adapter.setProducts(products);
+        recyclerResults.scrollToPosition(0);
+        progressSearch.setVisibility(View.GONE);
+        recyclerResults.setVisibility(View.VISIBLE);
+        textMessage.setVisibility(View.GONE);
+    }
+
+    /**
+     * Shows a message in place of the list, e.g. "no results" or an error.
+     *
+     * @param message the text to show.
+     */
+    private void showMessage(String message) {
+        adapter.setProducts(null);
+        textMessage.setText(message);
+        progressSearch.setVisibility(View.GONE);
+        recyclerResults.setVisibility(View.GONE);
+        textMessage.setVisibility(View.VISIBLE);
     }
 }

@@ -37,6 +37,18 @@ public class Nutriments {
     }
 
     /**
+     * Checks whether Open Food Facts supplied any of the four nutrition values.
+     * Used to tell "no data" apart from a genuine 0.0, since the getters
+     * return 0.0 for missing values.
+     *
+     * @return true if at least one value was present in the API response.
+     */
+    public boolean hasNutritionData() {
+        return caloriesPer100g != null || proteinPer100g != null
+                || carbsPer100g != null || fatPer100g != null;
+    }
+
+    /**
      * Gets calories per 100g.
      *
      * @return calories in kcal, or 0.0 if the API omitted it.
