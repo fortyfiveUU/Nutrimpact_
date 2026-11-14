@@ -1,3 +1,10 @@
+/**
+ * Module: EEE521 - Final Year Project
+ * Project: Nutrimpact
+ * File: FoodSearch.java
+ * Description: Model for an Open Food Facts search response, holding the list of matching food products.
+ */
+
 package com.example.nutrimpact;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,3 +1,10 @@
+/**
+ * Module: EEE521 - Final Year Project
+ * Project: Nutrimpact
+ * File: Nutriments.java
+ * Description: Model for a product's macronutrient values per 100g (calories, protein, carbohydrates and fat), mapped from Open Food Facts JSON.
+ */
+
 package com.example.nutrimpact;
 
 import com.google.gson.annotations.SerializedName;
@@ -70,7 +77,7 @@ public class Nutriments {
 
     /**
      Gets total fat in grams per 100g.
-     * */
+     **/
     public Double getFatPer100g() {
         return (fatPer100g != null) ? fatPer100g : 0.0;
     }

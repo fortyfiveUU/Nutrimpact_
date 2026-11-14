@@ -1,3 +1,10 @@
+/**
+ * Module: EEE521 - Final Year Project
+ * Project: Nutrimpact
+ * File: FoodProducts.java
+ * Description: Model for a single Open Food Facts product, holding its name, brand and nutritional breakdown.
+ */
+
 package com.example.nutrimpact;
 
 public class FoodProducts {
