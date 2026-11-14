@@ -17,8 +17,8 @@ import java.util.List;
  */
 public class FoodSearchResponse {
 
-    /** Products matching the search. Source JSON key: "products". */
-    @SerializedName("products")
+    /** Products matching the search. Source JSON key: "hits". */
+    @SerializedName("hits")
     private List<FoodProduct> products;
 
     /**

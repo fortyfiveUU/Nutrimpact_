@@ -24,19 +24,26 @@ import retrofit2.http.Query;
  */
 public interface OpenFoodFactsApi {
 
-    /** Base URL of the Open Food Facts API. */
+    /** Base URL of the main Open Food Facts API, used for product lookups. */
     String BASE_URL = "https://world.openfoodfacts.org/";
 
     /**
-     * Searches Open Food Facts for products matching a text query.
-     * Only the fields the app uses are requested, to keep responses small.
+     * Full URL of the Open Food Facts search service ("Search-a-licious").
+     * It replaces the older cgi/search.pl endpoint, which was often overloaded
+     * and returned HTTP 503 errors. Only the fields the app uses are requested,
+     * to keep responses small.
+     */
+    String SEARCH_URL = "https://search.openfoodfacts.org/search"
+            + "?page_size=20&fields=product_name,brands,nutriments";
+
+    /**
+     * Searches Open Food Facts for products matching a food type or brand name.
      *
-     * @param query the search terms, e.g. "Oats".
+     * @param query the search terms, e.g. "oats" or "Heinz".
      * @return a Retrofit call that returns the matching products.
      */
-    @GET("cgi/search.pl?search_simple=1&action=process&json=1&page_size=20"
-            + "&fields=product_name,brands,nutriments")
-    Call<FoodSearchResponse> searchProducts(@Query("search_terms") String query);
+    @GET(SEARCH_URL)
+    Call<FoodSearchResponse> searchProducts(@Query("q") String query);
 
     /**
      * Builds and holds a single shared OpenFoodFactsApi instance.

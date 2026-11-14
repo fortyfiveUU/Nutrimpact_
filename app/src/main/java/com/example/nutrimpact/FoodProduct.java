@@ -9,6 +9,9 @@ package com.example.nutrimpact;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents one food product returned by the Open Food Facts API.
  */
@@ -18,9 +21,9 @@ public class FoodProduct {
     @SerializedName("product_name")
     private String productName;
 
-    /** Comma-separated brand names. Source JSON key: "brands". */
+    /** Brand names, e.g. ["Quaker", "Quaker Oats"]. Source JSON key: "brands". */
     @SerializedName("brands")
-    private String brands;
+    private List<String> brands;
 
     /** Per-100g nutritional values. Source JSON key: "nutriments". */
     @SerializedName("nutriments")
@@ -51,20 +54,31 @@ public class FoodProduct {
     }
 
     /**
-     * Gets the product's brand names.
+     * Gets the product's brand names as one readable string, e.g. "Quaker, Quaker Oats".
+     * Blank entries are skipped and extra spaces are trimmed.
      *
-     * @return the brands, or "Brand not listed" if the API omitted them.
+     * @return the brands joined with commas, or "Brand not listed" if there are none.
      */
     public String getBrands() {
-        return (brands != null) ? brands : "Brand not listed";
+        if (brands == null) {
+            return "Brand not listed";
+        }
+
+        List<String> cleaned = new ArrayList<>();
+        for (String brand : brands) {
+            if (brand != null && !brand.trim().isEmpty()) {
+                cleaned.add(brand.trim());
+            }
+        }
+        return cleaned.isEmpty() ? "Brand not listed" : String.join(", ", cleaned);
     }
 
     /**
      * Sets the product's brand names.
      *
-     * @param brands the brand names.
+     * @param brands the list of brand names.
      */
-    public void setBrands(String brands) {
+    public void setBrands(List<String> brands) {
         this.brands = brands;
     }
 
