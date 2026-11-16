@@ -53,6 +53,9 @@ public class AddFoodActivity extends AppCompatActivity {
     /** Intent extra: fat per 100g. */
     private static final String EXTRA_FAT = "com.example.nutrimpact.FAT";
 
+    /** Intent extra: the day to log to, as days since 1970-01-01. */
+    private static final String EXTRA_LOG_DAY = "com.example.nutrimpact.LOG_DAY";
+
     /** Saved-state key for whether the amount is in ounces. */
     private static final String KEY_USING_OUNCES = "using_ounces";
 
@@ -76,6 +79,9 @@ public class AddFoodActivity extends AppCompatActivity {
 
     /** Fat per 100g. */
     private double fatPer100g;
+
+    /** Day the food is logged to, as days since 1970-01-01. */
+    private long logDay;
 
     /** True when the amount box is in ounces, false for grams. */
     private boolean usingOunces;
@@ -107,9 +113,10 @@ public class AddFoodActivity extends AppCompatActivity {
      *
      * @param context the screen opening this one.
      * @param product the product to log.
+     * @param logDay  the day to log it to, as days since 1970-01-01.
      * @return an Intent ready for startActivity().
      */
-    public static Intent createIntent(Context context, FoodProduct product) {
+    public static Intent createIntent(Context context, FoodProduct product, long logDay) {
         Nutriments nutriments = product.getNutriments();
         Intent intent = new Intent(context, AddFoodActivity.class);
         intent.putExtra(EXTRA_PRODUCT_NAME, product.getProductName());
@@ -118,6 +125,7 @@ public class AddFoodActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_PROTEIN, nutriments.getProteinPer100g());
         intent.putExtra(EXTRA_CARBS, nutriments.getCarbsPer100g());
         intent.putExtra(EXTRA_FAT, nutriments.getFatPer100g());
+        intent.putExtra(EXTRA_LOG_DAY, logDay);
         return intent;
     }
 
@@ -139,6 +147,7 @@ public class AddFoodActivity extends AppCompatActivity {
         proteinPer100g = intent.getDoubleExtra(EXTRA_PROTEIN, 0.0);
         carbsPer100g = intent.getDoubleExtra(EXTRA_CARBS, 0.0);
         fatPer100g = intent.getDoubleExtra(EXTRA_FAT, 0.0);
+        logDay = intent.getLongExtra(EXTRA_LOG_DAY, LocalDate.now().toEpochDay());
 
         repository = new FoodLogRepository(this);
 
@@ -318,8 +327,8 @@ public class AddFoodActivity extends AppCompatActivity {
     }
 
     /**
-     * Saves the food to the log in the background, then confirms and closes
-     * the screen.
+     * Saves the food to the log in the background, then confirms and returns
+     * to the diary on the day the food was logged to.
      */
     private void saveEntry() {
         double grams = getPortionGrams();
@@ -334,7 +343,7 @@ public class AddFoodActivity extends AppCompatActivity {
         entry.setProductName(productName);
         entry.setBrands(brands);
         entry.setMealType(meal.name());
-        entry.setLogDate(LocalDate.now().toEpochDay());
+        entry.setLogDate(logDay);
         entry.setLoggedAt(System.currentTimeMillis());
         entry.setPortionGrams(grams);
         entry.setCaloriesPer100g(caloriesPer100g);
@@ -348,6 +357,8 @@ public class AddFoodActivity extends AppCompatActivity {
         repository.addEntry(entry, () -> {
             Toast.makeText(this, getString(R.string.add_food_saved, getString(meal.getLabelResId())),
                     Toast.LENGTH_SHORT).show();
+            // Closes search and this screen, leaving the diary showing the new entry.
+            startActivity(DiaryActivity.createShowDayIntent(this, logDay));
             finish();
         });
     }

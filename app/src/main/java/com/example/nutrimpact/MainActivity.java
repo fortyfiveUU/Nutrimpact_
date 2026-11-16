@@ -8,6 +8,7 @@
 package com.example.nutrimpact;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,11 +27,19 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.time.LocalDate;
+
 /**
  * Entry point of the app. Hosts the food search screen. The search itself
  * runs in SearchViewModel, so it survives screen rotation.
  */
 public class MainActivity extends AppCompatActivity {
+
+    /** Intent extra: the day foods are logged to, as days since 1970-01-01. */
+    private static final String EXTRA_LOG_DAY = "com.example.nutrimpact.LOG_DAY";
+
+    /** Day that foods picked here are logged to. */
+    private long logDay;
 
     /** Outlined box around the search field; shows the magnifying glass and error messages. */
     private TextInputLayout layoutSearch;
@@ -54,6 +63,19 @@ public class MainActivity extends AppCompatActivity {
     private SearchViewModel viewModel;
 
     /**
+     * Builds an Intent that opens food search for logging to a given day.
+     *
+     * @param context the screen opening search.
+     * @param logDay  the day foods will be logged to, as days since 1970-01-01.
+     * @return an Intent ready for startActivity().
+     */
+    public static Intent createIntent(Context context, long logDay) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(EXTRA_LOG_DAY, logDay);
+        return intent;
+    }
+
+    /**
      * Called when the activity is created, including after rotation. Sets the
      * layout, wires up the search bar and starts observing the search state.
      *
@@ -63,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        logDay = getIntent().getLongExtra(EXTRA_LOG_DAY, LocalDate.now().toEpochDay());
 
         layoutSearch = findViewById(R.id.layoutSearch);
         editSearch = findViewById(R.id.editSearch);
@@ -170,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(recyclerResults, R.string.item_cannot_log, Snackbar.LENGTH_LONG).show();
             return;
         }
-        startActivity(AddFoodActivity.createIntent(this, product));
+        startActivity(AddFoodActivity.createIntent(this, product, logDay));
     }
 
     /**
