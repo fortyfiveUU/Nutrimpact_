@@ -101,6 +101,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:max="100"
+                    app:trackColor="?attr/colorSurface"
                     app:trackCornerRadius="4dp"
                     app:trackThickness="8dp"
                     tools:progress="62" />
@@ -132,6 +133,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:max="100"
+                            app:trackColor="?attr/colorSurface"
                             app:trackCornerRadius="2dp" />
 
                     </LinearLayout>
@@ -156,6 +158,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:max="100"
+                            app:trackColor="?attr/colorSurface"
                             app:trackCornerRadius="2dp" />
 
                     </LinearLayout>
@@ -180,6 +183,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:max="100"
+                            app:trackColor="?attr/colorSurface"
                             app:trackCornerRadius="2dp" />
 
                     </LinearLayout>

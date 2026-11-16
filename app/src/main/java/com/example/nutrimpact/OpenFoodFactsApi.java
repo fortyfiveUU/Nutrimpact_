@@ -7,6 +7,8 @@
 
 package com.example.nutrimpact;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -102,6 +104,17 @@ public interface OpenFoodFactsApi {
                 api = retrofit.create(OpenFoodFactsApi.class);
             }
             return api;
+        }
+
+        /**
+         * Replaces the shared API instance. Only used by instrumented tests to
+         * point the app at a fake web server; passing null restores the real API.
+         *
+         * @param testApi the API to use, or null to go back to the real one.
+         */
+        @VisibleForTesting
+        public static synchronized void setApiForTesting(OpenFoodFactsApi testApi) {
+            api = testApi;
         }
     }
 }
