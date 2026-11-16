@@ -17,4 +17,26 @@
     <string name="item_calories">%1$.0f kcal per 100g</string>
     <string name="item_macros">Protein %1$.1fg · Carbs %2$.1fg · Fat %3$.1fg</string>
     <string name="item_no_nutrition">No nutrition data available</string>
+    <string name="item_cannot_log">This product has no nutrition data, so it can\'t be added to your log.</string>
+
+    <!-- Meals -->
+    <string name="meal_breakfast">Breakfast</string>
+    <string name="meal_lunch">Lunch</string>
+    <string name="meal_dinner">Dinner</string>
+    <string name="meal_snacks">Snacks</string>
+
+    <!-- Add food screen -->
+    <string name="add_food_title">Add to log</string>
+    <string name="add_food_back">Back</string>
+    <string name="add_food_per_100g">Per 100g: %1$.0f kcal · Protein %2$.1fg · Carbs %3$.1fg · Fat %4$.1fg</string>
+    <string name="add_food_amount_hint">Amount</string>
+    <string name="add_food_unit_grams">g</string>
+    <string name="add_food_unit_ounces">oz</string>
+    <string name="add_food_meal_label">Meal</string>
+    <string name="add_food_portion_label">This portion</string>
+    <string name="add_food_portion_calories">%1$.0f kcal</string>
+    <string name="add_food_portion_empty">Enter an amount to see the nutrition</string>
+    <string name="add_food_error_amount">Enter an amount above 0 and up to 5 kg (176 oz)</string>
+    <string name="add_food_button">Add to log</string>
+    <string name="add_food_saved">Added to %1$s</string>
 </resources>

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerResults = findViewById(R.id.recyclerResults);
         textMessage = findViewById(R.id.textMessage);
 
-        adapter = new FoodProductAdapter();
+        adapter = new FoodProductAdapter(this::onProductClicked);
         recyclerResults.setAdapter(adapter);
 
         // Returns the existing ViewModel after rotation, or creates one on first launch.
@@ -78,10 +80,23 @@ public class MainActivity extends AppCompatActivity {
         // Tapping the magnifying glass runs the search.
         layoutSearch.setEndIconOnClickListener(view -> performSearch());
 
-        // Pressing the search key on the keyboard also runs the search.
+        // The search key on the on-screen keyboard also runs the search.
         editSearch.setOnEditorActionListener((view, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH && event == null) {
                 performSearch();
+                return true;
+            }
+            return false;
+        });
+
+        // Enter on a physical keyboard runs the search when the key is released.
+        // The key-down is consumed too: some keyboards swallow it, and if it is
+        // left alone Android moves focus to the first result card instead.
+        editSearch.setOnKeyListener((view, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER) {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    performSearch();
+                }
                 return true;
             }
             return false;
@@ -142,6 +157,20 @@ public class MainActivity extends AppCompatActivity {
         layoutSearch.setError(null);
         hideKeyboard();
         viewModel.search(query);
+    }
+
+    /**
+     * Opens the Add Food screen for a tapped product. Products with no
+     * nutrition data can't be logged, so a short message is shown instead.
+     *
+     * @param product the product that was tapped.
+     */
+    private void onProductClicked(FoodProduct product) {
+        if (!product.getNutriments().hasNutritionData()) {
+            Snackbar.make(recyclerResults, R.string.item_cannot_log, Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        startActivity(AddFoodActivity.createIntent(this, product));
     }
 
     /**

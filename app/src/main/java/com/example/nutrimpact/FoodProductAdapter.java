@@ -24,13 +24,32 @@ import java.util.List;
  */
 public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.FoodProductViewHolder> {
 
+    /**
+     * Receives taps on a product card.
+     */
+    public interface OnProductClickListener {
+
+        /**
+         * Called when the user taps a product.
+         *
+         * @param product the product that was tapped.
+         */
+        void onProductClick(FoodProduct product);
+    }
+
     /** Products currently shown in the list. */
     private final List<FoodProduct> products = new ArrayList<>();
 
+    /** Receives card taps. */
+    private final OnProductClickListener clickListener;
+
     /**
-     * Default constructor. Starts with an empty list.
+     * Creates an adapter with an empty list.
+     *
+     * @param clickListener called when a product card is tapped.
      */
-    public FoodProductAdapter() {
+    public FoodProductAdapter(OnProductClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 
     /**
@@ -69,7 +88,9 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
      */
     @Override
     public void onBindViewHolder(@NonNull FoodProductViewHolder holder, int position) {
-        holder.bind(products.get(position));
+        FoodProduct product = products.get(position);
+        holder.bind(product);
+        holder.itemView.setOnClickListener(view -> clickListener.onProductClick(product));
     }
 
     /**
