@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">Nutrimpact</string>
 
+    <!-- Energy units -->
+    <string name="energy_kcal">%1$,.0f kcal</string>
+    <string name="energy_kj">%1$,.0f kJ</string>
+
     <!-- Search screen -->
     <string name="search_title">Find a food</string>
-    <string name="search_prompt">Search by food type or brand name, then tap the magnifying glass.</string>
+    <string name="search_prompt">Search by food type, brand name or barcode number, then tap the magnifying glass. Tap the barcode icon to scan a product.</string>
     <string name="search_hint">e.g. oats, Heinz, greek yoghurt</string>
+    <string name="search_scan_description">Scan a barcode</string>
+    <string name="search_barcode_not_found">No product found for barcode %1$s. Try searching by name instead.</string>
     <string name="search_button_description">Search</string>
     <string name="search_error_empty">Please enter a food or brand to search</string>
     <string name="search_start_message">Your search results will appear here.</string>
@@ -14,7 +20,7 @@
     <string name="search_loading_description">Searching</string>
 
     <!-- Search result card -->
-    <string name="item_calories">%1$.0f kcal per 100g</string>
+    <string name="item_calories">%1$s per 100g</string>
     <string name="item_macros">Protein %1$.1fg · Carbs %2$.1fg · Fat %3$.1fg</string>
     <string name="item_no_nutrition">No nutrition data available</string>
     <string name="item_cannot_log">This product has no nutrition data, so it can\'t be added to your log.</string>
@@ -28,13 +34,12 @@
     <!-- Add food screen -->
     <string name="add_food_title">Add to log</string>
     <string name="add_food_back">Back</string>
-    <string name="add_food_per_100g">Per 100g: %1$.0f kcal · Protein %2$.1fg · Carbs %3$.1fg · Fat %4$.1fg</string>
+    <string name="add_food_per_100g">Per 100g: %1$s · Protein %2$.1fg · Carbs %3$.1fg · Fat %4$.1fg</string>
     <string name="add_food_amount_hint">Amount</string>
     <string name="add_food_unit_grams">g</string>
     <string name="add_food_unit_ounces">oz</string>
     <string name="add_food_meal_label">Meal</string>
     <string name="add_food_portion_label">This portion</string>
-    <string name="add_food_portion_calories">%1$.0f kcal</string>
     <string name="add_food_portion_empty">Enter an amount to see the nutrition</string>
     <string name="add_food_error_amount">Enter an amount above 0 and up to 5 kg (176 oz)</string>
     <string name="add_food_button">Add to log</string>
@@ -46,13 +51,67 @@
     <string name="diary_previous_day">Previous day</string>
     <string name="diary_next_day">Next day</string>
     <string name="diary_total_label">Total for the day</string>
-    <string name="diary_total_calories">%1$.0f kcal</string>
-    <string name="diary_total_macros">Protein %1$.0fg · Carbs %2$.0fg · Fat %3$.0fg</string>
     <string name="diary_empty">Nothing logged for this day yet.\nTap Add food to start.</string>
     <string name="diary_add_food">Add food</string>
-    <string name="diary_meal_calories">%1$.0f kcal</string>
     <string name="diary_entry_portion">%1$.0f g · %2$s</string>
-    <string name="diary_entry_calories">%1$.0f kcal</string>
     <string name="diary_entry_removed">Removed %1$s</string>
     <string name="diary_undo">Undo</string>
+    <string name="diary_menu_progress">Progress</string>
+    <string name="diary_menu_settings">Settings</string>
+    <string name="diary_calorie_goal_line">of %1$s · %2$s</string>
+    <string name="diary_calories_left">%1$s left</string>
+    <string name="diary_calories_over">%1$s over</string>
+    <string name="diary_macro_progress">%1$s %2$.0f / %3$dg</string>
+    <string name="diary_calories_description">%1$s eaten out of a goal of %2$s</string>
+    <string name="macro_protein">Protein</string>
+    <string name="macro_carbs">Carbs</string>
+    <string name="macro_fat">Fat</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_goals_heading">Daily goals</string>
+    <string name="settings_goals_help">The defaults are the UK Reference Intakes for an average adult. Change them to suit you.</string>
+    <string name="settings_calorie_goal">Calories (kcal)</string>
+    <string name="settings_protein_goal">Protein (g)</string>
+    <string name="settings_carbs_goal">Carbohydrates (g)</string>
+    <string name="settings_fat_goal">Fat (g)</string>
+    <string name="settings_reset_goals">Reset to UK Reference Intakes</string>
+    <string name="settings_units_heading">Units</string>
+    <string name="settings_energy_unit">Show energy in</string>
+    <string name="settings_portion_unit">Start portions in</string>
+    <string name="settings_unit_kcal">kcal</string>
+    <string name="settings_unit_kj">kJ</string>
+    <string name="settings_privacy_heading">Your data</string>
+    <string name="settings_privacy_text">Nutrimpact has no accounts. Your food log, goals and settings are stored only on this phone and are never uploaded. Only the words or barcodes you search for are sent to Open Food Facts to look up products.</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="settings_error_calories">Enter a number from 500 to 10,000</string>
+    <string name="settings_error_macro">Enter a number from 1 to 1,000</string>
+
+    <!-- Progress screen -->
+    <string name="progress_title">Progress</string>
+    <string name="progress_previous_week">Previous week</string>
+    <string name="progress_next_week">Next week</string>
+    <string name="progress_week_range">%1$s – %2$s</string>
+    <string name="progress_chart_heading">Energy each day</string>
+    <string name="progress_goal_line">Goal %1$s</string>
+    <string name="progress_average">%1$s a day on average</string>
+    <string name="progress_days_logged">Based on %1$d of 7 days logged</string>
+    <plurals name="progress_within_goal">
+        <item quantity="one">Within your goal on %1$d of %2$d day</item>
+        <item quantity="other">Within your goal on %1$d of %2$d days</item>
+    </plurals>
+    <string name="progress_macros_heading">Average per logged day</string>
+    <string name="progress_macro_line">%1$s: %2$.0fg (goal %3$dg)</string>
+    <string name="progress_empty">Nothing logged in this week.</string>
+    <string name="progress_chart_description">Bar chart of energy eaten each day this week. %1$s</string>
+
+    <!-- Barcode scanner -->
+    <string name="scanner_title">Scan a barcode</string>
+    <string name="scanner_hint">Point the camera at a product barcode</string>
+    <string name="scanner_permission_needed">Nutrimpact needs the camera to scan barcodes. Images are processed on your phone and never uploaded.
+
+You can also type the barcode number into the search box.</string>
+    <string name="scanner_close">Close</string>
+    <string name="scanner_camera_error">The camera couldn\'t be started. You can type the barcode number into the search box instead.</string>
 </resources>

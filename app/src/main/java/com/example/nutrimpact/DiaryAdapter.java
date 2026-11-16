@@ -75,11 +75,26 @@ public class DiaryAdapter extends ListAdapter<DiaryItem, RecyclerView.ViewHolder
         }
     };
 
+    /** Unit energy is shown in. */
+    private EnergyUnit energyUnit = EnergyUnit.KCAL;
+
     /**
      * Creates an adapter with an empty list.
      */
     public DiaryAdapter() {
         super(DIFF_CALLBACK);
+    }
+
+    /**
+     * Sets the unit energy is shown in, redrawing the rows if it changed.
+     *
+     * @param unit KCAL or KJ.
+     */
+    public void setEnergyUnit(EnergyUnit unit) {
+        if (unit != energyUnit) {
+            energyUnit = unit;
+            notifyItemRangeChanged(0, getItemCount());
+        }
     }
 
     /**
@@ -130,9 +145,9 @@ public class DiaryAdapter extends ListAdapter<DiaryItem, RecyclerView.ViewHolder
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         DiaryItem item = getItem(position);
         if (holder instanceof HeaderViewHolder) {
-            ((HeaderViewHolder) holder).bind(item);
+            ((HeaderViewHolder) holder).bind(item, energyUnit);
         } else if (holder instanceof EntryViewHolder) {
-            ((EntryViewHolder) holder).bind(item.getEntry());
+            ((EntryViewHolder) holder).bind(item.getEntry(), energyUnit);
         }
     }
 
@@ -162,11 +177,12 @@ public class DiaryAdapter extends ListAdapter<DiaryItem, RecyclerView.ViewHolder
          * Shows a meal heading.
          *
          * @param item the heading row.
+         * @param unit the unit to show energy in.
          */
-        public void bind(DiaryItem item) {
+        public void bind(DiaryItem item, EnergyUnit unit) {
             Context context = itemView.getContext();
             textMealName.setText(item.getMeal().getLabelResId());
-            textMealCalories.setText(context.getString(R.string.diary_meal_calories, item.getMealCalories()));
+            textMealCalories.setText(unit.format(context, item.getMealCalories()));
         }
     }
 
@@ -204,16 +220,16 @@ public class DiaryAdapter extends ListAdapter<DiaryItem, RecyclerView.ViewHolder
          * Shows a logged food.
          *
          * @param entry the logged food.
+         * @param unit  the unit to show energy in.
          */
-        public void bind(FoodLogEntry entry) {
+        public void bind(FoodLogEntry entry, EnergyUnit unit) {
             Context context = itemView.getContext();
             textEntryName.setText(entry.getProductName());
             textEntryPortion.setText(context.getString(R.string.diary_entry_portion,
                     entry.getPortionGrams(), entry.getBrands()));
             textEntryMacros.setText(context.getString(R.string.item_macros,
                     entry.getPortionProtein(), entry.getPortionCarbs(), entry.getPortionFat()));
-            textEntryCalories.setText(context.getString(R.string.diary_entry_calories,
-                    entry.getPortionCalories()));
+            textEntryCalories.setText(unit.format(context, entry.getPortionCalories()));
         }
     }
 }

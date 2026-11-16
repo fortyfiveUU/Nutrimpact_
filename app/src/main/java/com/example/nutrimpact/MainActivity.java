@@ -19,6 +19,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
     /** Day that foods picked here are logged to. */
     private long logDay;
+
+    /** Opens the scanner and puts the scanned barcode into the search box, then searches. */
+    private final ActivityResultLauncher<Intent> scanLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onScanResult);
 
     /** Outlined box around the search field; shows the magnifying glass and error messages. */
     private TextInputLayout layoutSearch;
@@ -102,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Tapping the magnifying glass runs the search.
         layoutSearch.setEndIconOnClickListener(view -> performSearch());
+
+        // Tapping the barcode icon opens the scanner.
+        layoutSearch.setStartIconOnClickListener(view ->
+                scanLauncher.launch(BarcodeScannerActivity.createIntent(this)));
 
         // The search key on the on-screen keyboard also runs the search.
         editSearch.setOnEditorActionListener((view, actionId, event) -> {
@@ -183,6 +194,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Handles the scanner closing: if a barcode was scanned, puts it in the
+     * search box and looks it up.
+     *
+     * @param result the scanner's result.
+     */
+    private void onScanResult(ActivityResult result) {
+        Intent data = result.getData();
+        if (result.getResultCode() == RESULT_OK && data != null) {
+            String barcode = data.getStringExtra(BarcodeScannerActivity.EXTRA_BARCODE);
+            if (barcode != null) {
+                editSearch.setText(barcode);
+                performSearch();
+            }
+        }
+    }
+
+    /**
+     * Picks up the energy unit from Settings each time search comes into view.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.setEnergyUnit(new UserSettings(this).getEnergyUnit());
+    }
+
+    /**
      * Opens the Add Food screen for a tapped product. Products with no
      * nutrition data can't be logged, so a short message is shown instead.
      *
@@ -228,6 +265,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case NO_RESULTS:
                 showMessage(getString(R.string.search_no_results, state.getQuery()));
+                break;
+            case BARCODE_NOT_FOUND:
+                showMessage(getString(R.string.search_barcode_not_found, state.getQuery()));
                 break;
             case NETWORK_ERROR:
                 showMessage(getString(R.string.search_error_network));

@@ -17,6 +17,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -44,6 +45,16 @@ public interface OpenFoodFactsApi {
      */
     @GET(SEARCH_URL)
     Call<FoodSearchResponse> searchProducts(@Query("q") String query);
+
+    /**
+     * Looks up one product by its barcode, on the main Open Food Facts API.
+     * Only the fields the app uses are requested.
+     *
+     * @param barcode the EAN/UPC barcode digits, e.g. "3017620422003".
+     * @return a Retrofit call that returns the product, if found.
+     */
+    @GET("api/v2/product/{barcode}?fields=product_name,brands,nutriments")
+    Call<ProductLookupResponse> lookupBarcode(@Path("barcode") String barcode);
 
     /**
      * Builds and holds a single shared OpenFoodFactsApi instance.

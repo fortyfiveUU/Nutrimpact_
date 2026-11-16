@@ -68,4 +68,15 @@ public class FoodLogRepository {
     public LiveData<List<FoodLogEntry>> getEntriesForDay(long epochDay) {
         return foodLogDao.getEntriesForDay(epochDay);
     }
+
+    /**
+     * Gets each day's totals between two days (inclusive). Updates automatically.
+     *
+     * @param startDay first day, as days since 1970-01-01.
+     * @param endDay   last day, as days since 1970-01-01.
+     * @return live list of daily totals, oldest first; days with nothing logged are left out.
+     */
+    public LiveData<List<DayTotal>> getDayTotals(long startDay, long endDay) {
+        return foodLogDao.getDayTotals(startDay, endDay);
+    }
 }

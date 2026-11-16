@@ -43,6 +43,9 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
     /** Receives card taps. */
     private final OnProductClickListener clickListener;
 
+    /** Unit energy is shown in. */
+    private EnergyUnit energyUnit = EnergyUnit.KCAL;
+
     /**
      * Creates an adapter with an empty list.
      *
@@ -63,6 +66,18 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
             products.addAll(newProducts);
         }
         notifyDataSetChanged();
+    }
+
+    /**
+     * Sets the unit energy is shown in, redrawing the cards if it changed.
+     *
+     * @param unit KCAL or KJ.
+     */
+    public void setEnergyUnit(EnergyUnit unit) {
+        if (unit != energyUnit) {
+            energyUnit = unit;
+            notifyItemRangeChanged(0, getItemCount());
+        }
     }
 
     /**
@@ -89,7 +104,7 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
     @Override
     public void onBindViewHolder(@NonNull FoodProductViewHolder holder, int position) {
         FoodProduct product = products.get(position);
-        holder.bind(product);
+        holder.bind(product, energyUnit);
         holder.itemView.setOnClickListener(view -> clickListener.onProductClick(product));
     }
 
@@ -138,8 +153,9 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
          * data show a message instead of misleading zero values.
          *
          * @param product the product to show.
+         * @param unit    the unit to show energy in.
          */
-        public void bind(FoodProduct product) {
+        public void bind(FoodProduct product, EnergyUnit unit) {
             Context context = itemView.getContext();
             Nutriments nutriments = product.getNutriments();
 
@@ -148,7 +164,7 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
 
             if (nutriments.hasNutritionData()) {
                 textCalories.setText(context.getString(R.string.item_calories,
-                        nutriments.getCaloriesPer100g()));
+                        unit.format(context, nutriments.getCaloriesPer100g())));
                 textMacros.setText(context.getString(R.string.item_macros,
                         nutriments.getProteinPer100g(),
                         nutriments.getCarbsPer100g(),

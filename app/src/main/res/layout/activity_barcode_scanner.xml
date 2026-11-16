@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Barcode scanner: full-screen camera preview with a framing box and hint,
+     or a message if the camera can't be used. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context=".BarcodeScannerActivity">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewCamera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@+id/viewScanFrame"
+        android:layout_width="280dp"
+        android:layout_height="160dp"
+        android:layout_gravity="center"
+        android:background="@drawable/scan_frame" />
+
+    <TextView
+        android:id="@+id/textScannerHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="120dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:shadowColor="@android:color/black"
+        android:shadowRadius="4"
+        android:text="@string/scanner_hint"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="@android:color/white" />
+
+    <!-- Shown instead of the camera if permission is refused or the camera fails -->
+    <LinearLayout
+        android:id="@+id/layoutScannerMessage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textScannerMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/scanner_permission_needed"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+        <Button
+            android:id="@+id/buttonScannerClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/scanner_close" />
+
+    </LinearLayout>
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarScanner"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#66000000"
+        app:navigationContentDescription="@string/add_food_back"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="@android:color/white"
+        app:title="@string/scanner_title"
+        app:titleTextColor="@android:color/white" />
+
+</FrameLayout>

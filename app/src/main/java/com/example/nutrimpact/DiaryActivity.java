@@ -2,7 +2,7 @@
  * Module: EEE521 - Final Year Project
  * Project: Nutrimpact
  * File: DiaryActivity.java
- * Description: The app's home screen. Shows the food logged on a chosen day, grouped by meal with daily totals, and lets the user add, browse and remove entries.
+ * Description: The app's home screen. Shows the food logged on a chosen day, grouped by meal, with daily totals and progress towards the user's goals, and lets the user add, browse and remove entries.
  */
 
 package com.example.nutrimpact;
@@ -20,6 +20,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.time.LocalDate;
@@ -53,11 +56,32 @@ public class DiaryActivity extends AppCompatActivity {
     /** Moves to the next day; disabled on today. */
     private Button buttonNextDay;
 
-    /** Day's total calories. */
+    /** Day's total energy. */
     private TextView textTotalCalories;
 
-    /** Day's total protein, carbs and fat. */
-    private TextView textTotalMacros;
+    /** "of 2,000 kcal · 1,848 kcal left" (or "over"). */
+    private TextView textCalorieGoal;
+
+    /** Energy progress towards the goal. */
+    private LinearProgressIndicator progressCalories;
+
+    /** Protein eaten and goal. */
+    private TextView textProteinProgress;
+
+    /** Protein progress towards the goal. */
+    private LinearProgressIndicator progressProtein;
+
+    /** Carbohydrates eaten and goal. */
+    private TextView textCarbsProgress;
+
+    /** Carbohydrate progress towards the goal. */
+    private LinearProgressIndicator progressCarbs;
+
+    /** Fat eaten and goal. */
+    private TextView textFatProgress;
+
+    /** Fat progress towards the goal. */
+    private LinearProgressIndicator progressFat;
 
     /** List of meals and foods. */
     private RecyclerView recyclerDiary;
@@ -70,6 +94,12 @@ public class DiaryActivity extends AppCompatActivity {
 
     /** Holds the selected day and its entries. */
     private DiaryViewModel viewModel;
+
+    /** Goals and units, saved on the device. */
+    private UserSettings settings;
+
+    /** The most recent entries, kept so totals can be redrawn when settings change. */
+    private List<FoodLogEntry> lastEntries;
 
     /**
      * Builds an Intent that brings the diary to the front showing a given day,
@@ -96,13 +126,34 @@ public class DiaryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary);
 
+        settings = new UserSettings(this);
+
         layoutRoot = findViewById(R.id.layoutDiaryRoot);
         textDiaryDay = findViewById(R.id.textDiaryDay);
         buttonNextDay = findViewById(R.id.buttonNextDay);
         textTotalCalories = findViewById(R.id.textTotalCalories);
-        textTotalMacros = findViewById(R.id.textTotalMacros);
+        textCalorieGoal = findViewById(R.id.textCalorieGoal);
+        progressCalories = findViewById(R.id.progressCalories);
+        textProteinProgress = findViewById(R.id.textProteinProgress);
+        progressProtein = findViewById(R.id.progressProtein);
+        textCarbsProgress = findViewById(R.id.textCarbsProgress);
+        progressCarbs = findViewById(R.id.progressCarbs);
+        textFatProgress = findViewById(R.id.textFatProgress);
+        progressFat = findViewById(R.id.progressFat);
         recyclerDiary = findViewById(R.id.recyclerDiary);
         textDiaryEmpty = findViewById(R.id.textDiaryEmpty);
+
+        MaterialToolbar toolbar = findViewById(R.id.toolbarDiary);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.menuProgress) {
+                startActivity(ProgressActivity.createIntent(this));
+                return true;
+            } else if (item.getItemId() == R.id.menuSettings) {
+                startActivity(SettingsActivity.createIntent(this));
+                return true;
+            }
+            return false;
+        });
 
         adapter = new DiaryAdapter();
         recyclerDiary.setAdapter(adapter);
@@ -119,6 +170,19 @@ public class DiaryActivity extends AppCompatActivity {
         findViewById(R.id.buttonPreviousDay).setOnClickListener(view -> viewModel.previousDay());
         buttonNextDay.setOnClickListener(view -> viewModel.nextDay());
         findViewById(R.id.fabAddFood).setOnClickListener(view -> openSearch());
+    }
+
+    /**
+     * Re-reads goals and units each time the diary comes back into view,
+     * so changes made in Settings show straight away.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.setEnergyUnit(settings.getEnergyUnit());
+        if (lastEntries != null) {
+            renderTotals(lastEntries);
+        }
     }
 
     /**
@@ -166,20 +230,64 @@ public class DiaryActivity extends AppCompatActivity {
     }
 
     /**
-     * Updates the totals and the list for the day's entries.
+     * Updates the totals, progress and list for the day's entries.
      *
      * @param entries the day's logged foods.
      */
     private void renderEntries(List<FoodLogEntry> entries) {
-        DailyTotals totals = DailyTotals.of(entries);
-        textTotalCalories.setText(getString(R.string.diary_total_calories, totals.getCalories()));
-        textTotalMacros.setText(getString(R.string.diary_total_macros,
-                totals.getProtein(), totals.getCarbs(), totals.getFat()));
+        lastEntries = entries;
+        renderTotals(entries);
 
         adapter.submitList(DiaryItem.buildList(entries));
         boolean empty = (entries == null || entries.isEmpty());
         recyclerDiary.setVisibility(empty ? View.GONE : View.VISIBLE);
         textDiaryEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Shows the day's totals against the saved goals.
+     *
+     * @param entries the day's logged foods.
+     */
+    private void renderTotals(List<FoodLogEntry> entries) {
+        DailyTotals totals = DailyTotals.of(entries);
+        NutritionGoals goals = settings.getGoals();
+        EnergyUnit unit = settings.getEnergyUnit();
+
+        double eaten = totals.getCalories();
+        double goal = goals.getCalories();
+        textTotalCalories.setText(unit.format(this, eaten));
+        String leftOrOver = (eaten <= goal)
+                ? getString(R.string.diary_calories_left, unit.format(this, goal - eaten))
+                : getString(R.string.diary_calories_over, unit.format(this, eaten - goal));
+        textCalorieGoal.setText(getString(R.string.diary_calorie_goal_line, unit.format(this, goal), leftOrOver));
+        progressCalories.setContentDescription(getString(R.string.diary_calories_description,
+                unit.format(this, eaten), unit.format(this, goal)));
+        showProgress(progressCalories, eaten, goal);
+
+        textProteinProgress.setText(getString(R.string.diary_macro_progress,
+                getString(R.string.macro_protein), totals.getProtein(), goals.getProtein()));
+        showProgress(progressProtein, totals.getProtein(), goals.getProtein());
+        textCarbsProgress.setText(getString(R.string.diary_macro_progress,
+                getString(R.string.macro_carbs), totals.getCarbs(), goals.getCarbs()));
+        showProgress(progressCarbs, totals.getCarbs(), goals.getCarbs());
+        textFatProgress.setText(getString(R.string.diary_macro_progress,
+                getString(R.string.macro_fat), totals.getFat(), goals.getFat()));
+        showProgress(progressFat, totals.getFat(), goals.getFat());
+    }
+
+    /**
+     * Fills a progress bar, turning it the theme's error colour once the goal is exceeded.
+     *
+     * @param bar      the progress bar.
+     * @param consumed the amount eaten.
+     * @param goal     the goal.
+     */
+    private void showProgress(LinearProgressIndicator bar, double consumed, double goal) {
+        bar.setProgressCompat(NutritionGoals.progressPercent(consumed, goal), false);
+        int colourAttr = (consumed > goal) ? com.google.android.material.R.attr.colorError
+                : com.google.android.material.R.attr.colorPrimary;
+        bar.setIndicatorColor(MaterialColors.getColor(bar, colourAttr));
     }
 
     /**

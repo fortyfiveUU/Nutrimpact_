@@ -48,4 +48,22 @@ public interface FoodLogDao {
      */
     @Query("SELECT * FROM food_log WHERE log_date = :epochDay ORDER BY logged_at ASC")
     LiveData<List<FoodLogEntry>> getEntriesForDay(long epochDay);
+
+    /**
+     * Adds up each day's nutrition between two days (inclusive). Days with
+     * nothing logged are not returned. Scaling from per-100g to the portion
+     * is done in SQL, matching PortionCalculator.scale().
+     *
+     * @param startDay first day, as days since 1970-01-01.
+     * @param endDay   last day, as days since 1970-01-01.
+     * @return live list of daily totals, oldest first.
+     */
+    @Query("SELECT log_date,"
+            + " SUM(calories_per_100g * portion_grams / 100.0) AS calories,"
+            + " SUM(protein_per_100g * portion_grams / 100.0) AS protein,"
+            + " SUM(carbs_per_100g * portion_grams / 100.0) AS carbs,"
+            + " SUM(fat_per_100g * portion_grams / 100.0) AS fat"
+            + " FROM food_log WHERE log_date BETWEEN :startDay AND :endDay"
+            + " GROUP BY log_date ORDER BY log_date ASC")
+    LiveData<List<DayTotal>> getDayTotals(long startDay, long endDay);
 }

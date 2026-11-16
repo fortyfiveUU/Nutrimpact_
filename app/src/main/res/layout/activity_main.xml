@@ -35,7 +35,9 @@
         app:endIconContentDescription="@string/search_button_description"
         app:endIconDrawable="@drawable/ic_search"
         app:endIconMode="custom"
-        app:errorIconDrawable="@null">
+        app:errorIconDrawable="@null"
+        app:startIconContentDescription="@string/search_scan_description"
+        app:startIconDrawable="@drawable/ic_barcode">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editSearch"

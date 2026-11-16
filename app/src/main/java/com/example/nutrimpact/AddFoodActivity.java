@@ -83,6 +83,9 @@ public class AddFoodActivity extends AppCompatActivity {
     /** Day the food is logged to, as days since 1970-01-01. */
     private long logDay;
 
+    /** Unit energy is shown in, from the user's settings. */
+    private EnergyUnit energyUnit;
+
     /** True when the amount box is in ounces, false for grams. */
     private boolean usingOunces;
 
@@ -164,13 +167,18 @@ public class AddFoodActivity extends AppCompatActivity {
 
         ((TextView) findViewById(R.id.textAddProductName)).setText(productName);
         ((TextView) findViewById(R.id.textAddBrand)).setText(brands);
+        UserSettings settings = new UserSettings(this);
+        energyUnit = settings.getEnergyUnit();
         ((TextView) findViewById(R.id.textAddPer100g)).setText(getString(R.string.add_food_per_100g,
-                caloriesPer100g, proteinPer100g, carbsPer100g, fatPer100g));
+                energyUnit.format(this, caloriesPer100g), proteinPer100g, carbsPer100g, fatPer100g));
 
         if (savedInstanceState == null) {
-            // First open: 100g, and the meal that fits the current time.
-            usingOunces = false;
-            editAmount.setText(formatAmount(DEFAULT_PORTION_GRAMS));
+            // First open: 100g (or its ounce equivalent if that's the user's default),
+            // and the meal that fits the current time.
+            usingOunces = settings.isOuncesDefault();
+            toggleUnit.check(usingOunces ? R.id.buttonOunces : R.id.buttonGrams);
+            editAmount.setText(formatAmount(usingOunces
+                    ? PortionCalculator.gramsToOunces(DEFAULT_PORTION_GRAMS) : DEFAULT_PORTION_GRAMS));
             chipGroupMeal.check(chipIdFor(MealType.suggestFor(LocalTime.now())));
         } else {
             // After rotation, Android restores the text, chips and toggle itself.
@@ -311,8 +319,7 @@ public class AddFoodActivity extends AppCompatActivity {
 
         if (valid) {
             layoutAmount.setError(null);
-            textPortionCalories.setText(getString(R.string.add_food_portion_calories,
-                    PortionCalculator.scale(caloriesPer100g, grams)));
+            textPortionCalories.setText(energyUnit.format(this, PortionCalculator.scale(caloriesPer100g, grams)));
             textPortionMacros.setText(getString(R.string.item_macros,
                     PortionCalculator.scale(proteinPer100g, grams),
                     PortionCalculator.scale(carbsPer100g, grams),

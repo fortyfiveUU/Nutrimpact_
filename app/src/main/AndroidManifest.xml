@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- The camera is only needed for barcode scanning; the app still works without one. -->
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +31,19 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:parentActivityName=".DiaryActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".DiaryActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".BarcodeScannerActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ProgressActivity"
             android:exported="false"
             android:parentActivityName=".DiaryActivity" />
         <activity

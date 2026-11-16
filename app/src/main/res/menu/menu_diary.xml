@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Diary top bar actions: weekly progress and settings. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menuProgress"
+        android:icon="@drawable/ic_bar_chart"
+        android:title="@string/diary_menu_progress"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menuSettings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/diary_menu_settings"
+        app:showAsAction="ifRoom" />
+
+</menu>

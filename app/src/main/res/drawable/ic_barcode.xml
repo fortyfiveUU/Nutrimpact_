@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Barcode icon for the scanner (Material Design icon). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorControlNormal"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M2,4h2v16H2zM5,4h1v16H5zM7,4h2v16H7zM10,4h1v16h-1zM12,4h3v16h-3zM16,4h1v16h-1zM18,4h1v16h-1zM20,4h2v16h-2z" />
+</vector>

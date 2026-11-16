@@ -30,6 +30,8 @@ public final class SearchUiState {
         RESULTS,
         /** The search worked but found nothing. */
         NO_RESULTS,
+        /** A barcode was looked up but Open Food Facts doesn't have it. */
+        BARCODE_NOT_FOUND,
         /** The device couldn't reach the server. */
         NETWORK_ERROR,
         /** The server returned an error. */
@@ -89,6 +91,16 @@ public final class SearchUiState {
     public static SearchUiState results(String query, List<FoodProduct> products) {
         Status status = (products == null || products.isEmpty()) ? Status.NO_RESULTS : Status.RESULTS;
         return new SearchUiState(status, products, query);
+    }
+
+    /**
+     * Creates the state for a barcode that Open Food Facts doesn't know.
+     *
+     * @param barcode the barcode that was looked up.
+     * @return a BARCODE_NOT_FOUND state.
+     */
+    public static SearchUiState barcodeNotFound(String barcode) {
+        return new SearchUiState(Status.BARCODE_NOT_FOUND, null, barcode);
     }
 
     /**
