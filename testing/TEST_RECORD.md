@@ -50,6 +50,8 @@ Latest full run: **16 November 2026**, on the finished Sprint 6 code.
 | `04_goals_progress_barcode_test.sh` | 68 | ✅ 68 passed |
 | **Total** | **358** | **All passing** |
 
+**Update, 19 November 2026:** after the post-Sprint 6 additions (backup, CSV export and touch-ups, section 12), the suites were run again: 43 unit tests, 36 instrumented tests and all 192 emulator checks pass, and Lint reports 0 errors. See section 12 for details.
+
 Sprint 5's final run (commit `99da51c`) also passed everything: 39 unit tests and 192 emulator checks. In that run, one step of `03_diary_test.sh` failed once (a search that didn't finish in time), causing 20 follow-on failures; the live data was unchanged and the script passed 48/48 when run again straight afterwards, so this was treated as a one-off timing failure.
 
 ---
@@ -67,7 +69,8 @@ Sprint 5's final run (commit `99da51c`) also passed everything: 39 unit tests an
 | `BarcodeUtilsTest` | 4 | Real EAN-13, EAN-8, UPC-A and GTIN-14 codes accepted; wrong check digit, wrong length, letters and empty input rejected; GS1 check-digit calculation |
 | `WeekSummaryTest` | 5 | Seven days returned with gaps filled; averages count logged days only; days within goal (on the goal counts as within); days outside the week ignored |
 | `ProductLookupResponseTest` | 4 | Parsing real-shaped Open Food Facts barcode JSON with Gson; not-found responses; missing fields; splitting the brands string |
-| **Total** | **38** | |
+| `FoodLogCsvTest` *(added 19 Nov)* | 5 | CSV export: header only for an empty log; date, time, meal and portion-scaled values in a row; commas and quotes escaped; formula injection blocked (`=`, `+`, `-`, `@`); every row has the header's column count |
+| **Total** | **43** | (38 at the end of Sprint 6) |
 
 (The Android Studio template test `ExampleUnitTest.kt` was removed in Sprint 6 when the project became 100% Java.)
 
@@ -81,12 +84,13 @@ These run on an emulator or phone from Android Studio. The screen tests reset th
 |---|---|---|
 | `AppContextTest` | 1 | The tests run against the Nutrimpact app package (Java replacement for the Kotlin template) |
 | `FoodLogDaoTest` | 5 | Room queries on an in-memory database: save and read back; filter by day and order by time; delete then restore with the same ID (as Undo does); daily totals scaled in SQL (196.6 kcal for two foods); SQL totals match the Java `DailyTotals` exactly |
-| `SearchScreenTest` | 8 | Against a **fake server**: result cards; the "Open Food Facts is having problems" message for HTTP 503; no-results message; empty search error; barcode looked up on the product endpoint; unknown barcode (HTTP 404); wrong check digit searched as text; results shown in kJ when chosen |
+| `SearchScreenTest` | 9 | Against a **fake server**: result cards; the "Open Food Facts is having problems" message for HTTP 503; no-results message; empty search error; barcode looked up on the product endpoint; unknown barcode (HTTP 404); wrong check digit searched as text; results shown in kJ when chosen; *(19 Nov)* the top-bar back arrow closes search |
 | `AddFoodScreenTest` | 5 | Opens at 100 g; preview scales (40 g = 152 kcal); g ↔ oz conversion; 0 g, 6000 g and empty disable Add while 5000 g is allowed; Add saves the right name, meal, grams and day to the database |
 | `DiaryScreenTest` | 7 | Empty state; totals and goal line ("of 2,000 kcal · 1,803 kcal left"); over goal ("274 kcal over"); swipe to delete then Undo; **swiping the same food again after Undo, three times in a row**; meal headings can't be swiped; day arrows show each day's own foods |
-| `SettingsScreenTest` | 4 | UK defaults and privacy note shown; invalid goals rejected and nothing saved; Reset restores defaults; goals, kJ and ounces saved |
+| `SettingsScreenTest` | 5 | UK defaults and privacy note shown; invalid goals rejected and nothing saved; Reset restores defaults; goals, kJ and ounces saved; *(19 Nov)* export button and help text shown |
+| `FoodLogExportTest` *(added 19 Nov)* | 2 | Exports the app's real database to a file: every food from every day, oldest first, with scaled values and an escaped name; an empty log gives just the header |
 | `ProgressScreenTest` | 2 | Average over logged days (2,000 kcal), days logged, days within goal; empty previous week hides the summary |
-| **Total** | **32** | |
+| **Total** | **36** | (32 at the end of Sprint 6) |
 
 **Checking the tests can fail:** to make sure the tests aren't passing by accident, the app was deliberately broken so that a server error showed the wrong message. `SearchScreenTest.serverError_showsProblemMessage` failed as expected, and passed again once the code was restored.
 
@@ -144,7 +148,7 @@ The full instrumented suite was run three more times on the emulator with its di
 |---|---|---|
 | Small phone, 360 × 640 dp | ✅ 32 / 32 | Everything fits; the long search hint is shortened with "…", which is acceptable |
 | Tablet, 800 × 1280 dp | ✅ 32 / 32 | Works; content stretches across the full width, leaving a lot of empty space. A wider tablet layout would look better but isn't needed |
-| Text at 130% (accessibility setting) | ✅ 32 / 32 | Readable; the protein and carbs labels on the diary wrap onto two lines ("Protein 0 / ⏎ 50g") |
+| Text at 130% (accessibility setting) | ✅ 32 / 32 | Readable; the protein and carbs labels on the diary wrap onto two lines ("Protein 0 / ⏎ 50g"). **Fixed 19 Nov:** the labels now shrink to fit one line (see section 12) |
 
 ---
 
@@ -190,6 +194,7 @@ Several failures turned out to be problems with the test scripts rather than the
 | Android versions other than 16 | Only one emulator image installed | Install an Android 8 or 9 emulator image and run the instrumented tests |
 | Real small phones and tablets | Screen sizes were tested by resizing one emulator, not on real devices | Optional: run on a real device if available |
 | Screen reader (TalkBack) | Not yet checked | Manual check |
+| Backup to a real Google account | The emulator test used Android's local test backup, not Google's servers | On a real phone: Settings → System → Backup → Back up now, then reinstall the app |
 
 ---
 
@@ -205,3 +210,54 @@ Several failures turned out to be problems with the test scripts rather than the
 | 16 Nov 2026 | Ran the instrumented suite on a small phone, a tablet and 130% text | 32 / 32 in each; found invisible progress-bar tracks (defect 12) and wrapping macro labels at large text |
 | 16 Nov 2026 | Fixed defect 12 | Tracks visible in light and dark mode |
 | 16 Nov 2026 | Final full run of every suite | 358 / 358 checks pass (section 3) |
+
+---
+
+## 12. Post-Sprint 6 additions (19 November 2026)
+
+### What was added and why
+
+| Change | Why |
+|---|---|
+| **Android Auto Backup configured** (`backup_rules.xml`, `data_extraction_rules.xml`) | The diary was only on the phone, so losing or replacing the phone lost it. The rules now include the food log database and the settings file in the phone's own Google backup (end-to-end encrypted with the screen lock on Android 9+) and in phone-to-phone transfers. Nothing else is backed up, and there are still no accounts or servers. |
+| **Export food log (CSV)** in Settings | Lets users keep their own copy, open it in Excel or Google Sheets, or show it to a dietitian. It uses Android's "save as" screen, so the app needs no storage permission. Product names come from Open Food Facts, which anyone can edit, so cells starting with `=`, `+`, `-` or `@` are prefixed with an apostrophe to stop spreadsheet formula injection. |
+| **Privacy text updated** | Now explains the encrypted backup as well as on-device storage. |
+| **Back arrow on the search screen** | Search was the only screen without one (section 10 of the Sprint 6 review). |
+| **Diary macro labels fit on one line** | At 130% text they wrapped (section 7). They now shrink to fit. |
+| **Search results adapter** | Replaced `notifyDataSetChanged()` with range insert/remove updates (a Lint recommendation). |
+| **Gradle 8.13 / Android Gradle Plugin 8.13.2** | The upgrade made in Android Studio was kept. Everything builds and passes with it. |
+
+### Backup and restore test (emulator, Android's local backup transport)
+
+1. Added three foods with `02_add_food_test.sh` and set a calorie goal of 1,850.
+2. Ran `adb shell bmgr backupnow com.example.nutrimpact`. Result: **Success**, about 117 KB backed up.
+3. Uninstalled the app, which deleted all its data, then reinstalled it.
+4. **Result:** the diary showed the same three foods (408 kcal) and "of 1,850 kcal · 1,442 kcal left". ✅
+
+Findings while testing:
+- Room keeps recent changes in a separate `nutrimpact.db-wal` file. Here the main `.db` file was 4 KB and the wal file 78 KB, so a rule backing up only `nutrimpact.db` would have lost the recent entries. The rules therefore include the whole database folder.
+- The first backup attempt reported "Backup is not allowed" because the test had force-stopped the app first, and Android doesn't back up apps in the stopped state. This was a test-procedure mistake, not an app defect; leaving the app running normally fixed it.
+
+### CSV export test (emulator, real "save as" screen)
+
+Opened Settings, tapped **Export food log (CSV)**, and saved to Downloads with the suggested name `nutrimpact-food-log-2026-11-19.csv`. A toast showed "Exported 3 foods". The file had the header and three rows, with the brand "Quaker, Quaker Oats" correctly quoted and the 2 oz portion written as 56.7 g. ✅
+
+### Test results
+
+| Suite | Checks | Result |
+|---|---|---|
+| Unit tests | 43 | ✅ 43 passed |
+| Instrumented tests (Pixel 3a, Android 16) | 36 | ✅ 36 passed |
+| `01_search_test.sh` | 30 | ✅ 30 passed (after the script fix below) |
+| `02_add_food_test.sh` | 46 | ✅ 46 passed |
+| `03_diary_test.sh` | 48 | ✅ 48 passed |
+| `04_goals_progress_barcode_test.sh` | 68 | ✅ 68 passed |
+| Backup and restore, CSV export (manual) | 2 | ✅ passed |
+| Android Lint | – | ✅ 0 errors (30 warnings: 21 are "newer version available"; none are bugs) |
+
+### Issues found during this round
+
+- **Search script tapped the wrong place:** `01_search_test.sh` first failed 16 of 30 checks. The script tapped the search box at a fixed screen position, and the new top bar moved the box down. The script now looks up the box and magnifying glass positions from the screen, so layout changes won't break it again. (Test harness issue, not an app defect.)
+- **Lint caught two problems in the new code before they were committed:** an invisible byte-order-mark character typed straight into `FoodLogCsv.java` (replaced with the `\uFEFF` escape), and nested layout weights in the new search layout (removed).
+- 130% text re-checked by screenshot: macro labels stay on one line. Fat fits at full size while protein and carbs shrink slightly, so the three labels can differ a little in size; this is acceptable.
+

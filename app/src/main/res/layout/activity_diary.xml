@@ -106,7 +106,9 @@
                     app:trackThickness="8dp"
                     tools:progress="62" />
 
-                <!-- Macro progress: protein, carbs, fat -->
+                <!-- Macro progress: protein, carbs, fat. The labels shrink to fit on
+                     one line, so large system text sizes don't make the three columns
+                     wrap to different heights. -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -124,6 +126,10 @@
                             android:id="@+id/textProteinProgress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="12sp"
+                            android:autoSizeMinTextSize="8sp"
+                            android:autoSizeTextType="uniform"
+                            android:maxLines="1"
                             android:textAppearance="?attr/textAppearanceBodySmall"
                             tools:text="Protein 62 / 50g" />
 
@@ -149,6 +155,10 @@
                             android:id="@+id/textCarbsProgress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="12sp"
+                            android:autoSizeMinTextSize="8sp"
+                            android:autoSizeTextType="uniform"
+                            android:maxLines="1"
                             android:textAppearance="?attr/textAppearanceBodySmall"
                             tools:text="Carbs 150 / 260g" />
 
@@ -174,6 +184,10 @@
                             android:id="@+id/textFatProgress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:autoSizeMaxTextSize="12sp"
+                            android:autoSizeMinTextSize="8sp"
+                            android:autoSizeTextType="uniform"
+                            android:maxLines="1"
                             android:textAppearance="?attr/textAppearanceBodySmall"
                             tools:text="Fat 41 / 70g" />
 

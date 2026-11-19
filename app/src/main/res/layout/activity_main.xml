@@ -1,90 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Main search screen: title, prompt text and the food search bar. -->
+<!-- Search screen: top bar with a back arrow, prompt text, the food search bar and the results. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textSearchTitle"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarSearch"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/search_title"
-        android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/add_food_back"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:title="@string/search_title" />
 
-    <TextView
-        android:id="@+id/textSearchPrompt"
+    <!-- Last child, so match_parent fills the space under the toolbar. -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="@string/search_prompt"
-        android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-    <!-- Search bar. The magnifying glass at the end is the search button. -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutSearch"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="@string/search_hint"
-        app:endIconContentDescription="@string/search_button_description"
-        app:endIconDrawable="@drawable/ic_search"
-        app:endIconMode="custom"
-        app:errorIconDrawable="@null"
-        app:startIconContentDescription="@string/search_scan_description"
-        app:startIconDrawable="@drawable/ic_barcode">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editSearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:imeOptions="actionSearch"
-            android:inputType="text"
-            android:maxLines="1" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Results area. Only one of the list, spinner or message is visible at a time. -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerResults"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="8dp"
-            android:visibility="gone"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_food_product" />
-
-        <ProgressBar
-            android:id="@+id/progressSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:contentDescription="@string/search_loading_description"
-            android:visibility="gone" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
-            android:id="@+id/textMessage"
+            android:id="@+id/textSearchPrompt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="@string/search_start_message"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            android:text="@string/search_prompt"
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-    </FrameLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutSearch"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/search_hint"
+            app:endIconContentDescription="@string/search_button_description"
+            app:endIconDrawable="@drawable/ic_search"
+            app:endIconMode="custom"
+            app:errorIconDrawable="@null"
+            app:startIconContentDescription="@string/search_scan_description"
+            app:startIconDrawable="@drawable/ic_barcode">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Results area. Only one of the list, spinner or message is visible at a time. -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerResults"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_food_product" />
+
+            <ProgressBar
+                android:id="@+id/progressSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/search_loading_description"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/textMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="@string/search_start_message"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

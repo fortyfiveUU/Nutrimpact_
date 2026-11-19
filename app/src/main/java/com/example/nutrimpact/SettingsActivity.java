@@ -2,23 +2,28 @@
  * Module: EEE521 - Final Year Project
  * Project: Nutrimpact
  * File: SettingsActivity.java
- * Description: Settings screen for daily calorie and macronutrient goals, the energy unit (kcal/kJ) and the default portion unit (g/oz). Settings are saved only on the device.
+ * Description: Settings screen for daily calorie and macronutrient goals, the energy unit (kcal/kJ) and the default portion unit (g/oz). Settings are saved only on the device. Also exports the food log as a CSV file.
  */
 
 package com.example.nutrimpact;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.time.LocalDate;
 
 /**
  * Lets the user change their goals and units. Nothing is saved until Save is tapped.
@@ -45,6 +50,14 @@ public class SettingsActivity extends AppCompatActivity {
 
     /** Where settings are stored. */
     private UserSettings settings;
+
+    /**
+     * Opens Android's "save as" screen for a CSV file, then exports to the file
+     * the user picks. The app never needs storage permission: the user chooses
+     * the place and Android grants access to that one file.
+     */
+    private final ActivityResultLauncher<String> exportLauncher = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument("text/csv"), this::onExportFileChosen);
 
     /**
      * Builds an Intent that opens the settings screen.
@@ -89,6 +102,26 @@ public class SettingsActivity extends AppCompatActivity {
 
         findViewById(R.id.buttonResetGoals).setOnClickListener(view -> showGoals(NutritionGoals.defaults()));
         findViewById(R.id.buttonSaveSettings).setOnClickListener(view -> save());
+        findViewById(R.id.buttonExportCsv).setOnClickListener(view -> exportLauncher.launch(
+                getString(R.string.settings_export_file_name, LocalDate.now().toString())));
+    }
+
+    /**
+     * Writes the export once the user has picked where to save it.
+     *
+     * @param uri the chosen file, or null if the user backed out.
+     */
+    private void onExportFileChosen(Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        Context appContext = getApplicationContext();
+        new FoodLogRepository(appContext).exportCsv(getContentResolver(), uri, (success, entryCount) -> {
+            String message = success
+                    ? appContext.getResources().getQuantityString(R.plurals.settings_export_done, entryCount, entryCount)
+                    : appContext.getString(R.string.settings_export_failed);
+            Toast.makeText(appContext, message, Toast.LENGTH_LONG).show();
+        });
     }
 
     /**

@@ -122,4 +122,15 @@ public class SettingsScreenTest {
         assertEquals(EnergyUnit.KJ, settings.getEnergyUnit());
         assertTrue(settings.isOuncesDefault());
     }
+
+    /**
+     * The privacy section explains backup and offers the CSV export.
+     */
+    @Test
+    public void showsExportButton() {
+        onView(withId(R.id.buttonExportCsv)).perform(scrollTo())
+                .check(matches(isDisplayed()))
+                .check(matches(withText(R.string.settings_export_button)));
+        onView(withText(R.string.settings_export_help)).perform(scrollTo()).check(matches(isDisplayed()));
+    }
 }

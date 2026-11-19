@@ -19,6 +19,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -174,5 +175,15 @@ public class SearchScreenTest {
 
         TestHelpers.waitFor(onView(withText("1,586 kJ per 100g")), matches(isDisplayed()));
         assertEquals(EnergyUnit.KJ, new UserSettings(TestHelpers.context()).getEnergyUnit());
+    }
+
+    /**
+     * The back arrow in the top bar closes search.
+     */
+    @Test
+    public void backArrow_closesSearch() {
+        onView(withContentDescription(R.string.add_food_back)).perform(click());
+        assertTrue("Search did not close",
+                TestHelpers.waitUntil(() -> scenario.getState() == Lifecycle.State.DESTROYED));
     }
 }

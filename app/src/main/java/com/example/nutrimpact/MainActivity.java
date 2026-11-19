@@ -2,7 +2,7 @@
  * Module: EEE521 - Final Year Project
  * Project: Nutrimpact
  * File: MainActivity.java
- * Description: Launcher activity for Nutrimpact. Handles the search bar and draws the search state from SearchViewModel: a spinner while loading, the results list, or a friendly message.
+ * Description: Food search screen, opened from the diary. Handles the search bar and draws the search state from SearchViewModel: a spinner while loading, the results list, or a friendly message.
  */
 
 package com.example.nutrimpact;
@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -33,7 +34,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.time.LocalDate;
 
 /**
- * Entry point of the app. Hosts the food search screen. The search itself
+ * Hosts the food search screen. The search itself
  * runs in SearchViewModel, so it survives screen rotation.
  */
 public class MainActivity extends AppCompatActivity {
@@ -93,6 +94,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         logDay = getIntent().getLongExtra(EXTRA_LOG_DAY, LocalDate.now().toEpochDay());
+
+        MaterialToolbar toolbar = findViewById(R.id.toolbarSearch);
+        toolbar.setNavigationOnClickListener(view -> finish());
 
         layoutSearch = findViewById(R.id.layoutSearch);
         editSearch = findViewById(R.id.editSearch);

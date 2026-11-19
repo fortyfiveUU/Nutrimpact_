@@ -82,7 +82,15 @@
     <string name="settings_unit_kcal">kcal</string>
     <string name="settings_unit_kj">kJ</string>
     <string name="settings_privacy_heading">Your data</string>
-    <string name="settings_privacy_text">Nutrimpact has no accounts. Your food log, goals and settings are stored only on this phone and are never uploaded. Only the words or barcodes you search for are sent to Open Food Facts to look up products.</string>
+    <string name="settings_privacy_text">Nutrimpact has no accounts and no server. Your food log, goals and settings are stored on this phone. If backup is turned on in your phone\'s settings, they\'re included in your phone\'s own Google backup, which is end-to-end encrypted with your screen lock, so they come back when you set up a new phone. Only the words or barcodes you search for are sent to Open Food Facts to look up products.</string>
+    <string name="settings_export_button">Export food log (CSV)</string>
+    <string name="settings_export_help">Saves everything you\'ve logged as a spreadsheet file. You choose where it goes, e.g. Downloads or Google Drive.</string>
+    <string name="settings_export_file_name">nutrimpact-food-log-%1$s.csv</string>
+    <string name="settings_export_failed">Couldn\'t save the file. Please try again or pick a different location.</string>
+    <plurals name="settings_export_done">
+        <item quantity="one">Exported %d food</item>
+        <item quantity="other">Exported %d foods</item>
+    </plurals>
     <string name="settings_save">Save</string>
     <string name="settings_saved">Settings saved</string>
     <string name="settings_error_calories">Enter a number from 500 to 10,000</string>

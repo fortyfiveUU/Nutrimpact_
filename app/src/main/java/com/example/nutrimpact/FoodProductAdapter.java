@@ -56,16 +56,22 @@ public class FoodProductAdapter extends RecyclerView.Adapter<FoodProductAdapter.
     }
 
     /**
-     * Replaces the products shown in the list and refreshes the display.
+     * Replaces the products shown in the list and refreshes the display. Each
+     * search is a completely new list, so the old rows are removed and the new
+     * ones inserted, rather than redrawing everything with notifyDataSetChanged().
      *
      * @param newProducts the products to show; null clears the list.
      */
     public void setProducts(List<FoodProduct> newProducts) {
+        int oldCount = products.size();
         products.clear();
-        if (newProducts != null) {
-            products.addAll(newProducts);
+        if (oldCount > 0) {
+            notifyItemRangeRemoved(0, oldCount);
         }
-        notifyDataSetChanged();
+        if (newProducts != null && !newProducts.isEmpty()) {
+            products.addAll(newProducts);
+            notifyItemRangeInserted(0, products.size());
+        }
     }
 
     /**

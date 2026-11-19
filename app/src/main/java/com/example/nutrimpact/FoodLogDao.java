@@ -66,4 +66,13 @@ public interface FoodLogDao {
             + " FROM food_log WHERE log_date BETWEEN :startDay AND :endDay"
             + " GROUP BY log_date ORDER BY log_date ASC")
     LiveData<List<DayTotal>> getDayTotals(long startDay, long endDay);
+
+    /**
+     * Gets every food ever logged, oldest first, for exporting. Not LiveData:
+     * it reads the log once. Must be called off the main thread.
+     *
+     * @return all entries.
+     */
+    @Query("SELECT * FROM food_log ORDER BY log_date ASC, logged_at ASC")
+    List<FoodLogEntry> getAllEntries();
 }

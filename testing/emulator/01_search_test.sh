@@ -28,9 +28,12 @@ check() { # name, expected text, [negate]
   fi
 }
 count_cards() { ui | grep -o 'resource-id="com.example.nutrimpact:id/textProductName"' | wc -l | tr -d ' '; }
-clear_field() { $ADB shell input tap 400 452; sleep 0.5; $ADB shell input keyevent KEYCODE_MOVE_END; for i in $(seq 1 12); do $ADB shell input keyevent KEYCODE_DEL; done; }
+# Centre of an element on screen, found by a pattern in its uiautomator line (e.g. 'content-desc="Search"').
+# Looked up rather than hard-coded so layout changes (like the top bar added later) don't break the taps.
+centre() { b=(${=$(ui | tr ">" "\n" | grep -- "$1" | head -1 | grep -o 'bounds="[^"]*"' | grep -o "[0-9]*" | tr "\n" " ")}); echo "$(( (b[1]+b[3])/2 )) $(( (b[2]+b[4])/2 ))"; }
+clear_field() { $ADB shell input tap ${=FIELD}; sleep 0.5; $ADB shell input keyevent KEYCODE_MOVE_END; for i in $(seq 1 12); do $ADB shell input keyevent KEYCODE_DEL; done; }
 type_q() { clear_field; [[ -n "$1" ]] && $ADB shell input text "$1"; }
-tap_glass() { $ADB shell input tap 969 452; }
+tap_glass() { $ADB shell input tap ${=GLASS}; }
 wait_done() { for i in $(seq 1 20); do sleep 1; ui | grep -q 'id/progressSearch' || return 0; done; }
 
 $ADB shell settings put system accelerometer_rotation 0; $ADB shell settings put system user_rotation 0
@@ -39,6 +42,7 @@ $ADB install -r ${0:A:h}/../../app/build/outputs/apk/debug/app-debug.apk >/dev/n
 $ADB shell am start -S -n $PKG/.DiaryActivity >/dev/null; sleep 4
 fab=(${=$($ADB shell uiautomator dump /sdcard/ui.xml >/dev/null; $ADB shell cat /sdcard/ui.xml | tr ">" "\n" | grep 'text="Add food"' | head -1 | grep -o 'bounds="[^"]*"' | grep -o "[0-9]*" | tr "\n" " ")})
 $ADB shell input tap $(( (fab[1]+fab[3])/2 )) $(( (fab[2]+fab[4])/2 )); sleep 3; $ADB logcat -c
+FIELD=$(centre 'resource-id="com.example.nutrimpact:id/editSearch"'); GLASS=$(centre 'content-desc="Search"')
 
 echo "== Input and validation"
 check "Start message shown on launch" "Your search results will appear here."
